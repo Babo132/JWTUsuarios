@@ -1,0 +1,16 @@
+{
+    "name": "fajar/extra-fortino",
+    "autoload": {
+        "psr-4": {
+            "Fajar\\ExtraFortino\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sebas"
+        }
+    ],
+    "require": {
+        "lcobucci/jwt": "^4.2"
+    }
+}

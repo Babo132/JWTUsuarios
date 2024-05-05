@@ -1,62 +1,69 @@
 <?php
 require_once 'functions.php';
+require_once 'jwt.php';
+$HEADERS = getallheaders();
+
+$token = $HEADERS['Authorization'];
 
 // Manejar solicitudes POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    handlePostRequest();
+    handleRequest('POST');
 } 
 // Manejar solicitudes GET
 elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    handleGetRequest();
+    handleRequest('GET');
 } 
 // Manejar solicitudes DELETE
 elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    handleDeleteRequest();
+    handleRequest('DELETE');
 } 
 // Manejar solicitudes PUT
 elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    handlePutRequest();
+    handleRequest('PUT');
 }
 
-// Función para manejar solicitudes POST
-function handlePostRequest() {
+// Función para manejar todas las solicitudes
+function handleRequest($method) {
     $input = json_decode(file_get_contents('php://input'), true);
     
-    if (isset($_GET['action']) && $_GET['action'] === 'login') {
-        handleLogin($input);
-    } elseif (isset($input['nombre']) && isset($input['correo']) && isset($input['pass'])) {
-        createUserRequest($input);
-    } else {
-        sendBadRequestResponse("Se requieren datos válidos para la solicitud POST");
-    }
-}
-
-// Función para manejar solicitudes GET
-function handleGetRequest() {
-    if (isset($_GET['id'])) {
-        getUserByIdRequest($_GET['id']);
-    } else {
-        getUsersWithPaginationRequest();
-    }
-}
-
-// Función para manejar solicitudes DELETE
-function handleDeleteRequest() {
-    if (isset($_GET['id'])) {
-        deleteUserRequest($_GET['id']);
-    } else {
-        sendBadRequestResponse("Se requiere un ID de usuario para la solicitud DELETE");
-    }
-}
-
-// Función para manejar solicitudes PUT
-function handlePutRequest() {
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (isset($input['id'])) {
-        updateUserRequest($input);
-    } else {
-        sendBadRequestResponse("Se requiere un ID de usuario para la solicitud PUT");
+    switch ($method) {
+        case 'POST':
+            if (isset($_GET['action']) && $_GET['action'] === 'login') {
+                handleLogin($input);
+            } elseif (isset($input['nombre']) && isset($input['correo']) && isset($input['pass'])) {
+                createUserRequest($input);
+            } else {
+                sendBadRequestResponse("Se requieren datos válidos para la solicitud POST");
+            }
+            break;
+            
+        case 'GET':
+            if (isset($_GET['id'])) {
+                getUserByIdRequest($_GET['id']);
+            } else {
+                getUsersWithPaginationRequest();
+            }
+            break;
+            
+        case 'DELETE':
+            if (isset($_GET['id'])) {
+                deleteUserRequest($_GET['id']);
+            } else {
+                sendBadRequestResponse("Se requiere un ID de usuario para la solicitud DELETE");
+            }
+            break;
+            
+        case 'PUT':
+            if (isset($input['id'])) {
+                updateUserRequest($input);
+            } else {
+                sendBadRequestResponse("Se requiere un ID de usuario para la solicitud PUT");
+            }
+            break;
+            
+        default:
+            sendBadRequestResponse("Método de solicitud no válido");
+            break;
     }
 }
 
@@ -64,6 +71,10 @@ function handlePutRequest() {
 function handleLogin($input) {
     if (isset($input['correo']) && isset($input['pass'])) {
         $response = login($input['correo'], $input['pass']);
+        $response->token = $this->SignIn([
+            "pass"    => $input['pass'],
+            "correo"   => $input['correo']
+        ]);;
         sendResponse($response);
     } else {
         sendBadRequestResponse("Se requieren correo y contraseña para iniciar sesión");

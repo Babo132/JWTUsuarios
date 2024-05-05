@@ -1,4 +1,5 @@
 <?php
+// functions.php
 
 require_once 'config.php';
 
@@ -27,7 +28,6 @@ function getUsersWithPagination($limit, $offset) {
     return $users;
 }
 
-
 // Función para obtener un usuario por ID
 function getUserById($userId) {
     global $conn;
@@ -50,6 +50,7 @@ function deleteUser($userId) {
         return "Error al eliminar usuario: " . $conn->error;
     }
 }
+
 // Función para actualizar un usuario por ID
 function updateUser($userId, $nombre, $correo, $pass) {
     global $conn;
@@ -81,6 +82,4 @@ function login($userCorreo, $userPass) {
         return array("message" => "Credenciales incorrectas");
     }
 }
-
-
 ?>
